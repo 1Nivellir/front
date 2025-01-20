@@ -5,25 +5,29 @@
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from 'vue-router';
-import { useMyStoreStore } from '~/stores/store';
-
-const store = useMyStoreStore();
-const route = useRoute();
-const idFilms = ref<number>(0);
 
   definePageMeta({
 	layout: 'main',
 })
 
+import { useRoute } from 'vue-router'
+import { useAsyncData } from '#app'
+
+const route = useRoute()
+const idFilms = ref<number>(0)
+
 if (typeof route.params.id === 'string') {
-  idFilms.value = parseInt(route.params.id);
+  idFilms.value = parseInt(route.params.id)
 } else if (Array.isArray(route.params.id)) {
-  idFilms.value = parseInt(route.params.id[0]);
+  idFilms.value = parseInt(route.params.id[0])
 }
 
-await useAsyncData('store', () => store.fetchMovieById(idFilms.value));
-const film = computed(() => store.oneFilm);
-console.log(film);
-
+const { data: film, error } = await useAsyncData('filmData', () =>
+  useCustomFetch(`movie/${idFilms.value}`), {
+    watch: [idFilms]
+  })
+  console.log(film.value)
+  if (error.value) {
+    console.error('Ошибка загрузки данных о фильме:', error.value)
+  }
 </script>

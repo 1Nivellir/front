@@ -1,5 +1,5 @@
 <template>
-  <section class="recommend" :style="{ backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #0D0C0F 0%, rgba(0, 0, 0, 0.4) 70%, #0D0C0F 100%, rgba(0, 0, 0, 0.4) 50%), url(${recommend[currentIndex].bgr})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }">
+  <section class="recommend">
     <div class="container">
       <div class="recommend__wrapper-title">
         <h2 class="recommend__title">Cinema рекомендует</h2>
@@ -17,28 +17,31 @@
       <div class="recommend__wrapper">
         <div class="recommend__wrapper-left">
           <div class="recommend__wrapper-2">
-            <h3 class="recommend__subtitle">{{ recommend[currentIndex].title }}</h3>
-            <p class="recommend__discription">{{ recommend[currentIndex].discription }}</p>
+            <h3 class="recommend__subtitle">
+              {{ Recommend[currentIndex]?.name }}
+            </h3>
+            <p class="recommend__discription">
+              {{ Recommend[currentIndex]?.description }}
+            </p>
           </div>
           <CommonButtons />
         </div>
         <div class="recommend__wrapper-right">
           <CommonSlider
-          :loop="true"
-            @slideChange="handleSlideChange"
+            :loop="true"
+            @realIndex="handleSlideChange"
             @instance="setSwiperInstance"
             :slidesperview="4"
-            :slide-card="recommend"
+            :slide-card="Recommend"
             :slidespergroup="1"
             custom-button-next="custom-button-next-rek"
             custom-button-prev="custom-button-prev-rek"
           >
             <template #slide="{ item, index }">
-              <div
-                class="recommend__img-wrapper"
-                :class="{ 'active-slide': currentIndex === index }"
-              >
-                <img class="recommend__img" :src="item.poster" alt="Poster" />
+              <div class="recommend__img-wrapper">
+                <NuxtLink :to="`/movie/${item.id}`" class="recommend__img-wrapper">
+                  <img class="recommend__img" :src="item.poster.url" alt="Poster" />
+                </NuxtLink>
               </div>
             </template>
           </CommonSlider>
@@ -49,30 +52,48 @@
 </template>
 
 <script lang="ts" setup>
-const recommend = recommendCard;
+import type { Movie, MovieResponse } from '~/types/app';
 const currentIndex = ref(0);
-
 const swiperRef = ref<any>(null);
-
-const handleClickPrev = () => {
-  if (swiperRef.value) {
-    swiperRef.value.slidePrev();
-  }
-};
-
-const handleClickNext = () => {
-  if (swiperRef.value) {
-    swiperRef.value.slideNext();
-  }
-};
 
 const setSwiperInstance = (instance: any) => {
   swiperRef.value = instance;
 };
+
+const handleClickPrev = () => {
+  swiperRef.value?.slidePrev();
+};
+
+const handleClickNext = () => {
+  swiperRef.value?.slideNext();
+};
+
 const handleSlideChange = (index: number) => {
   currentIndex.value = index;
 };
+
+const Recommend = ref<MovieResponse[]>([]);
+
+const getRecommend = async () => {
+  try {
+    const response = await useCustomFetch<string>('movie', {
+      method: 'GET',
+      query: {
+        page: 1,
+        limit: 5,
+        id: [689, 688, 322, 8408, 48356],
+      },
+    });
+Recommend.value = response.docs;  
+} catch (err) {
+    console.error('Ошибка клиентской загрузки данных:', err);
+  }
+};
+
+await useAsyncData('recommendedMovies', () => getRecommend());
 </script>
+
+
 
 <style lang="scss" scoped>
 .recommend {

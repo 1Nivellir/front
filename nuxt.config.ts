@@ -10,5 +10,14 @@ export default defineNuxtConfig({
   ],
   plugins: [
    '~/plugins/pinia'
-  ]
+  ],
+  runtimeConfig: {
+    token:
+      process.env.NUXT_PUBLIC_TOKEN ||
+      'P2XPCG5-WTBMXVN-P8NGB0W-7ZRDB7Z',
+    public: {
+      baseURL:
+        process.env.NUXT_PUBLIC_BASE_URL || 'https://api.kinopoisk.dev/v1.4/',
+    },
+  },
 })

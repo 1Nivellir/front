@@ -8,12 +8,11 @@
         <button @click="handleClickNext" :disabled="!swiperRef || swiperRef.isEnd" class="btn-reset custom-button-next-serial"></button>
       </div>
       </div>
-    <CommonSlider :slidesperview="6" @instance="setSwiperInstance" :slide-card="top" custom-button-next="custom-button-next-serial" custom-button-prev="custom-button-prev-serial" >
+    <CommonSlider :slidesperview="6" @instance="setSwiperInstance" :slide-card="topFilm" custom-button-next="custom-button-next-serial" custom-button-prev="custom-button-prev-serial" >
       <template #slide="{ item }">
       <div class="top__img-wrapper">
         <NuxtLink :to="`/movie/${item.id}`" class="top__img-wrapper">
-    <img class="top__img" :src="item.poster.url" alt="Poster">
-<div class="top__rating-wrapper"><img class="top__rating-img" src="/img/rating.png" alt="Star"><span class="top__rating-text">{{ item.rating.kp }}</span></div>
+    <img class="top__img" :src="item.poster?.url" alt="Poster">
 </NuxtLink>
   </div>
     </template></CommonSlider>
@@ -22,13 +21,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useMyStoreStore } from '~/stores/store';
-
-const store = useMyStoreStore();
-const top = computed(() => store.top);
 
 const swiperRef = ref<any>(null);
-
 const handleClickPrev = () => {
   if (swiperRef.value) {
     swiperRef.value.slidePrev();
@@ -44,10 +38,28 @@ const handleClickNext = () => {
 const setSwiperInstance = (instance: any) => {
   swiperRef.value = instance;
 };
+const topFilm = ref<any[]>([]);
 
-onMounted( async () => {
- await store.fetchTop();
-});
+const getFilm = async () => {
+  try {
+    const response = await useCustomFetch<any>('movie', {
+      method: 'GET',
+      query: {
+        page: 1,
+        limit: 10,
+        notNullFields: ['top10', 'poster.url'],
+      },
+    });
+    topFilm.value = response.docs
+
+  } catch (err) {
+    console.error('Ошибка клиентской загрузки данных:', err);
+  }
+}
+await useAsyncData<any>('topMovies', () => 
+  getFilm()
+);
+
 </script>
 
 <style lang="scss" scoped>
@@ -76,22 +88,6 @@ onMounted( async () => {
   height: 280px;
   opacity: 0.9;
 }
-
-  &__rating-img {
-    width: 22px;
-    height: 22px;
-  }
-  &__rating-text {
-    display: block;
-    font-family: 'Akrobat';
-    font-style: normal;
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
-  }
-  &__img-wrapper {
-    position: relative;
-  }
   &__rating-wrapper {
     width: 100%;
     position: absolute;
@@ -99,6 +95,7 @@ onMounted( async () => {
     bottom: 10px;
     display: flex;
     align-items: center;
+    justify-content: baseline;
     gap: 5px;
   }
 }

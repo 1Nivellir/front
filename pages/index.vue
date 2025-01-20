@@ -2,7 +2,7 @@
   <div>
     <HomeBand />
     <HomeTop />
-    <HomeFilms />
+    <!-- <HomeFilms /> -->
     <HomeRecommend />
   </div>
 </template>
