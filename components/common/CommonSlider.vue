@@ -39,8 +39,6 @@ const initSwiper = (instance: any) => {
   emit('instance', instance);
 };
 
-
-
 defineProps<{
   slidesperview: number;
   slidespergroup?: number;

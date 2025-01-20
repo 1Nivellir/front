@@ -8,7 +8,7 @@
         <button @click="handleClickNext" :disabled="!swiperRef || swiperRef.isEnd" class="btn-reset custom-button-next-serial"></button>
       </div>
       </div>
-    <CommonSlider :slidesperview="6" @instance="setSwiperInstance" :slide-card="topFilm" custom-button-next="custom-button-next-serial" custom-button-prev="custom-button-prev-serial" >
+    <CommonSlider :slidesperview="6" @instance="setSwiperInstance" :slide-card="loadFilm.topFilm.value" custom-button-next="custom-button-next-serial" custom-button-prev="custom-button-prev-serial" >
       <template #slide="{ item }">
       <div class="top__img-wrapper">
         <NuxtLink :to="`/movie/${item.id}`" class="top__img-wrapper">
@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-
+import { useLoadHome } from '~/composables/useLoadHome';
 const swiperRef = ref<any>(null);
 const handleClickPrev = () => {
   if (swiperRef.value) {
@@ -29,6 +29,7 @@ const handleClickPrev = () => {
   }
 };
 
+const loadFilm = await useLoadHome();
 const handleClickNext = () => {
   if (swiperRef.value) {
     swiperRef.value.slideNext();
@@ -37,28 +38,7 @@ const handleClickNext = () => {
 
 const setSwiperInstance = (instance: any) => {
   swiperRef.value = instance;
-};
-const topFilm = ref<any[]>([]);
-
-const getFilm = async () => {
-  try {
-    const response = await useCustomFetch<any>('movie', {
-      method: 'GET',
-      query: {
-        page: 1,
-        limit: 10,
-        notNullFields: ['top10', 'poster.url'],
-      },
-    });
-    topFilm.value = response.docs
-
-  } catch (err) {
-    console.error('Ошибка клиентской загрузки данных:', err);
-  }
 }
-await useAsyncData<any>('topMovies', () => 
-  getFilm()
-);
 
 </script>
 

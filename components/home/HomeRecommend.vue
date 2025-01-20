@@ -18,10 +18,10 @@
         <div class="recommend__wrapper-left">
           <div class="recommend__wrapper-2">
             <h3 class="recommend__subtitle">
-              {{ Recommend[currentIndex]?.name }}
+              {{ recommendList[currentIndex]?.name }}
             </h3>
             <p class="recommend__discription">
-              {{ Recommend[currentIndex]?.description }}
+              {{ recommendList[currentIndex]?.description }}
             </p>
           </div>
           <CommonButtons />
@@ -31,13 +31,13 @@
             :loop="true"
             @realIndex="handleSlideChange"
             @instance="setSwiperInstance"
-            :slidesperview="4"
-            :slide-card="Recommend"
-            :slidespergroup="1"
+            :slidesperview=4
+            :slide-card="slides"
+            :slidespergroup=1
             custom-button-next="custom-button-next-rek"
             custom-button-prev="custom-button-prev-rek"
           >
-            <template #slide="{ item, index }">
+            <template #slide="{ item }">
               <div class="recommend__img-wrapper">
                 <NuxtLink :to="`/movie/${item.id}`" class="recommend__img-wrapper">
                   <img class="recommend__img" :src="item.poster.url" alt="Poster" />
@@ -52,14 +52,16 @@
 </template>
 
 <script lang="ts" setup>
-import type { Movie, MovieResponse } from '~/types/app';
+import type { Movie } from '~/types/app';
 const currentIndex = ref(0);
 const swiperRef = ref<any>(null);
-
 const setSwiperInstance = (instance: any) => {
   swiperRef.value = instance;
 };
 
+defineProps<{
+  slides: Movie[];
+}>()
 const handleClickPrev = () => {
   swiperRef.value?.slidePrev();
 };
@@ -72,25 +74,8 @@ const handleSlideChange = (index: number) => {
   currentIndex.value = index;
 };
 
-const Recommend = ref<MovieResponse[]>([]);
+const recommendList = ref<Movie[]>([]);
 
-const getRecommend = async () => {
-  try {
-    const response = await useCustomFetch<string>('movie', {
-      method: 'GET',
-      query: {
-        page: 1,
-        limit: 5,
-        id: [689, 688, 322, 8408, 48356],
-      },
-    });
-Recommend.value = response.docs;  
-} catch (err) {
-    console.error('Ошибка клиентской загрузки данных:', err);
-  }
-};
-
-await useAsyncData('recommendedMovies', () => getRecommend());
 </script>
 
 

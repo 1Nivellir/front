@@ -3,13 +3,14 @@
     <HomeBand />
     <HomeTop />
     <!-- <HomeFilms /> -->
-    <HomeRecommend />
+    <HomeRecommend :slides='loadFiles.recommendList.value' />
   </div>
 </template>
 
 <script lang="ts" setup>
+import { useLoadHome } from '~/composables/useLoadHome';
 
-
+const loadFiles = await useLoadHome()
 </script>
 
 <style>

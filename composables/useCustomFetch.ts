@@ -1,10 +1,10 @@
 import { defu } from 'defu'
 import type { NitroFetchOptions } from 'nitropack'
 
-export function useCustomFetch<T extends string>(
+export function useCustomFetch<T extends string, K>(
   url: string,
   options: NitroFetchOptions<T> = {}
-) {
+): Promise<K> {
   const config = useRuntimeConfig()
   const defaults: NitroFetchOptions<T> = {
     baseURL: options.baseURL ? options.baseURL : config.public.baseURL,
